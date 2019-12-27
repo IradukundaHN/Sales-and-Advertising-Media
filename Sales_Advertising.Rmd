@@ -1,0 +1,95 @@
+
+
+```{r}
+
+# Import packages
+library(tidyverse)
+library(readxl)
+
+# load the data from working directory
+Advertising = read_csv("./Advertising.csv")
+
+
+# Fit the full model, using all three predictor variables
+FullModel = lm(Sales ~ TV + Radio + Newspaper, data = Advertising) #sales = β0 + β1 × TV + β2 × Radio + β3 × Newspaper
+
+## F-Test: Is At Least One Predictor Related to the Response Variable?
+summary(FullModel)
+
+```
+
+The observed F statistic in our model is displayed in the last line of the summary output below, with a value of 570.3, and a small p-value is < 2.2e-16 indicates that there is strong evidence that at least one of our predictor variables (TV, Radio, Newspaper) is related to the response (Sales). 
+Once we find that at least one of our predictors is related to our response variable, we can look at our R-squared value: 0.8972. Therefore, 89% of variability in the response values (Sales) is explained by the predictor values for this model.
+
+```{r}
+
+## Partial F-Test: Are a Subset of the Predictor Variables Related to the Response?
+FullModel = lm(Sales ~ TV + Radio + Newspaper, data = Advertising)
+ReducedModel = lm(Sales ~ TV, data = Advertising)
+
+# Now pass them into the anova function, with the reduced model first
+anova(ReducedModel, FullModel)
+
+
+# View the Full Model Once Again
+summary(FullModel)
+
+```
+
+The Analysis of Variance Tables shows F statistic value of 272.04 and a very small p-value. With these results, we conclude that there is strong evidence that at least one of predictors estimated values is related to the response, Sales.
+The observed output, the p-value=0.86 in the Newspaper variable, the Beta Test below show if reducing Newspaper would increase the accuracy of the Model.
+
+```{r}
+
+# Beta Test
+FullModel = lm(Sales ~ TV + Radio + Newspaper, data = Advertising)
+ReducedModelBeta3 = lm(Sales ~ TV + Radio, data = Advertising) # All but Newspaper
+anova(ReducedModelBeta3, FullModel) # Remember, reduced model first
+
+```
+
+
+```{r}
+
+## Multicolinearity
+NewspaperLR = lm(Sales ~ Newspaper, data = Advertising)
+
+summary(NewspaperLR)
+
+```
+The above summary, we get a significant p-value, indicating that Newspaper is related to Sales. 
+
+In the code below, Radio is added to this model. Notice what happens to the p-value of Newspaper.
+```{r}
+NewsRadioLR = lm(Sales ~ Newspaper + Radio, data = Advertising)
+
+summary(NewsRadioLR)
+```
+The Newspaper is now non-significant which is due to the effect of multicolinearity.
+Newspaper and Radio are correlated with each other, and this introduces redundancy into the multiple regression model. 
+Radio is highly correlated with Sales, and Newspaper is correlated with Radio. In effect, Newspaper “takes credit” for the effect of Radio when it is used as the only predictor variable.
+
+
+```{r}
+
+## Finding Correlations Among Predictor Variables
+
+pairs(Advertising, # the data frame,
+pch = 20, # point type option
+col = "#006EA1") # color of choice
+
+```
+
+In the plot above, we see that there is an approximate linear relationship between Sales and all of the predictor variables, except possibly Newspaper. 
+Also, notice that Radio and Newspaper appear to have a slight linear relationship.
+
+
+```{r}
+cor(Advertising)
+```
+
+The function, cor is used to confirm our visual findings by computing a correlation matrix that provides pairwise correlations of all variables in the Advertising data.
+Ideally, in multiple regression we want all predictors to be highly correlated with the response variable, and not correlated with each other.
+According to the results, TV(0.782) and Radio(0.576) are highly correlated with Sales, but Newspaper(0.228) is moderately correlated with Sales. 
+In addition, Radio and Newspaper have a moderate correlation of 0.354. This is why Newspaper was “taking credit” for the effect of Radio in the simple linear regression where we only used Newspaper. 
+While trying to find correlation among predictor variables, remove the ones that are least correlated with the response variable from the final model.
