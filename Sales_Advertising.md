@@ -32,7 +32,7 @@ library(tidyverse)
 library(readxl)
 
 # load the data from working directory
-Advertising = read_csv("C:/Users/Hugues Nelson/OneDrive - UMBC/HUGUES/Fall 2019/CMSC 491 - DS/CourseDataSets/Advertising.csv")
+Advertising = read_csv("/Advertising.csv")
 ```
 
 ```
